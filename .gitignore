@@ -1,0 +1,9 @@
+/META-INF/
+/schema/
+/OSGI-INF/
+/.idea/
+/.settings/
+/bin/
+/lib/
+/.classpath
+/BuildCompleteNotificator.iml

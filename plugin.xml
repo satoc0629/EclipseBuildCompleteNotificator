@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="4.14"?>
+<plugin>
+   <extension-point id="nature" name="%nature-name" schema="schema/nature.exsd"/>
+	<extension
+		id="mynature"
+		name="My Nature"
+	      point="org.eclipse.core.resources.natures">
+	      <runtime>
+	      	<run class="buildcapture.nature.MyNature">
+	      	</run>
+	      </runtime>
+	</extension>
+	<!-- コマンドの定義 -->
+    <extension
+         point="org.eclipse.ui.commands">
+	  <category
+            name="ビルド通知"
+            id="siersetup.build.notification">
+      </category>
+      <command
+            categoryId="siersetup.build.notification"
+            id="siersetup.menu"
+            name="ビルド通知を追加">
+      </command>
+    </extension>
+	<!-- ハンドラーの定義 -->
+    <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="buildcapture.handler.ContextMenuHandler"
+            commandId="siersetup.menu">
+      </handler>
+    </extension>
+    <!-- PropetyTester定義 -->
+    <extension point="org.eclipse.core.expressions.propertyTesters">
+		<propertyTester
+		  	id="visibleMenuTester"
+		  	type="org.eclipse.core.runtime.IAdaptable"
+		  	namespace="buildcapture.tester"
+		  	properties="selection"
+		  	class="buildcapture.tester.VisibleMenuTester"
+	  	  />
+    </extension>
+    <!-- メニュー定義 -->
+ 	<extension
+       point="org.eclipse.ui.menus">
+       <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <command
+               commandId="siersetup.menu"
+               id="siersetup.menus.id.1">
+	         <visibleWhen>
+	         	<!--  -->
+				<with variable="selection">
+					<iterate>
+						<and>
+						    <or>
+					            <adapt type="org.eclipse.core.resources.IProject"/>
+					            <adapt type="org.eclipse.jdt.core.IJavaProject"/>
+				            </or>
+							<!-- まだビルダー定義が追加されていないことを検査する -->
+							<test forcePluginActivation="true"
+								property="buildcapture.tester.selection" />
+						</and>
+					</iterate>
+				</with>
+	         </visibleWhen>
+         </command>
+      </menuContribution>
+ 	</extension>
+         <extension point="org.eclipse.core.resources.builders"
+ 		id="buildcapture.notification"
+ 		name="ビルド完了通知"
+ 	>
+	<builder>
+		<run class="buildcapture.builder.Notificator">
+		</run>
+                </builder>
+        </extension>
+         <extension point="org.eclipse.core.resources.builders"
+ 		id="buildcapture.start"
+ 		name="ビルド開始"
+ 	>
+	<builder>
+		<run class="buildcapture.builder.NotificatorStarter">
+		</run>
+                </builder>
+        </extension>
+	<!-- 設定 -->
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="buildcapture.propertypage.PropertyPageImpl"
+            id="buildcapture.propertypage.PropertyPage"
+            name="ビルド通知設定">
+         <enabledWhen>
+         	<or>
+	            <adapt type="org.eclipse.core.resources.IProject"/>
+	            <adapt type="org.eclipse.jdt.core.IJavaProject"/>
+            </or>
+         </enabledWhen>
+      </page>
+   </extension>
+</plugin>
